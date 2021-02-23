@@ -116,10 +116,10 @@ class ProjectionViewer:
 				for n1, n2 in wireframe.edges:
 					pygame.draw.aaline(self.screen, self.edgeColour, wireframe.nodes[n1][:2], wireframe.nodes[n2][:2],1)
 
-					if self.displayNodes:
-						for node in wireframe.nodes:
+			if self.displayNodes:
+				for node in wireframe.nodes:
 
-							pygame.draw.circle(self.screen, self.nodeColour, (int(node[0]), int(node[1])), self.nodeRadius, 0)
+					pygame.draw.circle(self.screen, self.nodeColour, (int(node[0]), int(node[1])), self.nodeRadius, 0)
 
 
 	def translateAll(self, vector):
