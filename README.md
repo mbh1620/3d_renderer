@@ -4,6 +4,8 @@
 
 This was done to help my understanding of rotation, scale and transformation matrices.
 
+I would like to try and rewrite this using c++ and openGL.
+
 In the future I would like to write a script using my lidar sensor to create an obj file that includes a point cloud of some measured data.
 
 Was done following these instructions:
