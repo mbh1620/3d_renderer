@@ -6,7 +6,8 @@ This was done to help my understanding of rotation, scale and transformation mat
 
 I would like to try and rewrite this using c++ and openGL.
 
-In the future I would like to write a script using my lidar sensor to create an obj file that includes a point cloud of some measured data.
+In the future I would like to write a script using my lidar sensor to create an .obj file that displays a point cloud of some measured data. This could maybe done
+using: https://www.matthewhaywood.co.uk/projects/dslr with a rotary encoder to get the x and y angle of the lidar sensor.
 
 Was done following these instructions:
 
