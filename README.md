@@ -1,5 +1,10 @@
 # 3d_renderer
-3d graphics renderer built using pygame
+
+3d graphics renderer built from only using pygame and numpy in Python.
+
+This was done to help my understanding of rotation, scale and transformation matrices.
+
+In the future I would like to write a script using my lidar sensor to create an obj file that includes a point cloud of some measured data.
 
 Was done following these instructions:
 
