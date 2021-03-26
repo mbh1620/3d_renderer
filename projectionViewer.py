@@ -106,20 +106,41 @@ class ProjectionViewer:
 
 	def addWireframe(self, name, wireframe):
 		self.wireframes[name] = wireframe
+		#translate to center
+		wf = Wireframe()
+		matrix = wf.translationMatrix(-self.width/2,-self.height/2,0)
+
+		for wireframe in self.wireframes.values():
+			wireframe.transform(matrix)
+
+		
+
+		wf = Wireframe()
+		matrix = wf.translationMatrix(self.width,self.height,0)
+
+		for wireframe in self.wireframes.values():
+			wireframe.transform(matrix)
+
+
+		
 
 	def display(self):
 
 		self.screen.fill(self.background)
 
 		for wireframe in self.wireframes.values():
-			if self.displayEdges:
-				for n1, n2 in wireframe.edges:
-					pygame.draw.aaline(self.screen, self.edgeColour, wireframe.nodes[n1][:2], wireframe.nodes[n2][:2],1)
+			wireframe.transform_for_perspective((self.width/2, self.height/2))	
 
 			if self.displayNodes:
-				for node in wireframe.nodes:
+				for node in wireframe.perspective_nodes:
 
 					pygame.draw.circle(self.screen, self.nodeColour, (int(node[0]), int(node[1])), self.nodeRadius, 0)
+
+			if self.displayEdges:
+				for n1, n2 in wireframe.edges:
+
+					pygame.draw.aaline(self.screen, self.edgeColour, wireframe.perspective_nodes[n1][:2], wireframe.perspective_nodes[n2][:2], 1)
+
 
 
 	def translateAll(self, vector):
@@ -148,6 +169,7 @@ class ProjectionViewer:
 
 		for wireframe in self.wireframes.values():
 			wireframe.transform(matrix)
+			#wireframe.transform_for_perspective()
 
 	def moveCameraX(self,x,y):
 
@@ -168,9 +190,31 @@ class ProjectionViewer:
 		for wireframe in self.wireframes.values():
 			wireframe.transform(matrix)
 
-	def perspectiveMode():
+	def perspectiveMode(self):
 
-		pass
+		#First translate the centre of screen to 0,0
+
+		wf = Wireframe()
+		matrix = wf.translationMatrix(-self.width/2,-self.height/2,0)
+
+		for wireframe in self.wireframes.values():
+			wireframe.transform(matrix)
+
+		#perform the perspectivecorrection
+
+		wf = Wireframe()
+		matrix = wf.translationMatrix(-self.width/2,-self.height/2,0)
+
+		for wireframe in self.wireframes.values():
+			matrix = wf.perspectiveCorrection(1.2)
+			wireframe.transform(matrix)
+
+		wf = Wireframe()
+		matrix = wf.translationMatrix(self.width/2,self.height/2,0)
+
+		for wireframe in self.wireframes.values():
+			wireframe.transform(matrix)
+
 
 	def rotate_about_Center(self, Axis, theta):
 
@@ -193,6 +237,10 @@ class ProjectionViewer:
 
 		for wireframe in self.wireframes.values():
 			wireframe.transform(matrix)
+			
+
+		
+		
 
 		#Translate back to centre of screen
 
@@ -201,6 +249,12 @@ class ProjectionViewer:
 
 		for wireframe in self.wireframes.values():
 			wireframe.transform(matrix)
+
+
+
+		
+
+		#Do perspective if needed
 
 	def scale_centre(self, vector):
 
@@ -228,6 +282,22 @@ class ProjectionViewer:
 
 
 
+	def add_perspective(self):
+
+		for wireframe in self.wireframes.values():
+			for node in wireframe.nodes:
+				if node[2] != 0:
+
+
+					print("Point ----------")
+					print("x node", node[0])
+					print("y node", node[1])
+					print("z node", node[2])
+
+					node[0] = node[0] + (10/node[2])
+					node[1] = node[1] + (10/node[2])
+
+					
 
 
 

@@ -20,6 +20,7 @@ class Wireframe:
 
 	def __init__(self):
 		self.nodes = np.zeros((0,4))
+		self.perspective_nodes = None
 		self.edges = []
 
 	def addNodes(self, node_array):
@@ -101,6 +102,18 @@ class Wireframe:
 	def transform(self, matrix):
 		self.nodes = np.dot(self.nodes, matrix)
 
+	def transform_for_perspective(self, center):
+		self.perspective_nodes = self.nodes.copy()
+		for i in range(len(self.nodes)):
+			node = self.nodes[i]
+			p_node = self.perspective_nodes[i]
+			print(node[0], node[1], node[2])
+			if node[2] != 0:
+				p_node[0] = center[0] + (node[0]-center[0])*250/(200-(node[2]))
+				p_node[1] = center[1] + (node[1]-center[1])*250/(200-(node[2]))
+				p_node[2] = node[2] * 1
+        
+
 	def translationMatrix(self, dx=0, dy=0, dz=0):
 
 		return np.array([[1,0,0,0],
@@ -144,6 +157,20 @@ class Wireframe:
 						 [s,c,0,0],
 						 [0,0,1,0],
 						 [0,0,0,1]])
+
+	def perspectiveMatrix(self, x, y, z, distance):
+
+		x = x/z
+		y = y/z
+
+		return np.array([[x, 0, 0, 0], 
+						 [0, y, 0, 0],
+						 [0, 0, 1, 0],
+						 [0, 0, 0, 1]])
+
+
+
+
 
 	def movCamera(self, tilt, pan):
 
