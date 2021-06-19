@@ -1,6 +1,7 @@
 from wireframe import *
 import pygame
 import numpy as np
+from camera import *
 
 class ProjectionViewer:
 
@@ -13,6 +14,10 @@ class ProjectionViewer:
 		pygame.display.set_caption('Wireframe Display')
 		self.background = (10,10,50)
 
+		#Setup camera
+		self.camera = Camera([0,0,0])
+
+
 
 		self.wireframes = {}
 		self.displayNodes = True
@@ -24,33 +29,23 @@ class ProjectionViewer:
 	def run(self):
 
 		key_to_function = {
-		pygame.K_LEFT: (lambda x: x.translateAll([-10, 0, 0])),
- 		pygame.K_RIGHT:(lambda x: x.translateAll([ 10, 0, 0])),
+		pygame.K_LEFT: (lambda x: x.rotate_about_camera('Y', 0.05)),
+ 		pygame.K_RIGHT:(lambda x: x.rotate_about_camera('Y', -0.05)),
  		pygame.K_DOWN: (lambda x: x.translateAll([0,  10, 0])),
  		pygame.K_UP:   (lambda x: x.translateAll([0, -10, 0])),
 
- 		# pygame.K_LEFT: (lambda x: x.moveCameraX(0,0.005)),
- 		# pygame.K_RIGHT:(lambda x: x.moveCameraX(0,-0.005)),
- 		# pygame.K_DOWN: (lambda x: x.moveCameraX(0.005,0)),
- 		# pygame.K_UP:   (lambda x: x.moveCameraX(-0.005,0)),
-
- 		pygame.K_a: (lambda x: x.rotate_about_Center('Y', -0.08)),
- 		pygame.K_d: (lambda x: x.rotate_about_Center('Y', 0.08)),
- 		pygame.K_w: (lambda x: x.rotate_about_Center('X', -0.08)),
- 		pygame.K_s: (lambda x: x.rotate_about_Center('X', 0.08)),
+ 		pygame.K_w: (lambda x: x.move_cam_forward(20)),
+ 		pygame.K_s: (lambda x: x.move_cam_backward(20)),
+ 		pygame.K_a: (lambda x: x.move_cam_left(20)),
+ 		pygame.K_d: (lambda x: x.move_cam_right(20)),
 
 
 		pygame.K_EQUALS: (lambda x: x.scale_centre([1.25,1.25,1.25])),
 		pygame.K_MINUS: (lambda x: x.scale_centre([0.8,0.8,0.8])),
 
 		pygame.K_q: (lambda x: x.rotateAll('X', 0.1)),
-		#pygame.K_w: (lambda x: x.rotateAll('X', -0.1)),
-		# pygame.K_a: (lambda x: x.rotateAll('Y', 0.1)),
-		#pygame.K_s: (lambda x: x.rotateAll('Y', -0.1)),
 		pygame.K_z: (lambda x: x.rotateAll('Z', 0.1)),
 		pygame.K_x: (lambda x: x.rotateAll('Z', -0.1)),
-		pygame.K_p: (lambda x: x.perspectiveMode()),
-		pygame.K_t: (lambda x: x.translate_Camera())
 		
 		}
 
@@ -129,11 +124,10 @@ class ProjectionViewer:
 		self.screen.fill(self.background)
 
 		for wireframe in self.wireframes.values():
-			wireframe.transform_for_perspective((self.width/2, self.height/2))	
+			wireframe.transform_for_perspective((self.width/2, self.height/2), self.camera.fov, self.camera.zoom)	
 
 			if self.displayNodes:
 				for node in wireframe.perspective_nodes:
-
 					pygame.draw.circle(self.screen, self.nodeColour, (int(node[0]), int(node[1])), self.nodeRadius, 0)
 
 			if self.displayEdges:
@@ -171,50 +165,6 @@ class ProjectionViewer:
 			wireframe.transform(matrix)
 			#wireframe.transform_for_perspective()
 
-	def moveCameraX(self,x,y):
-
-		wf = Wireframe()
-
-		matrix = wf.movCamera(x,y)
-		print("test")
-
-		for wireframe in self.wireframes.values():
-			wireframe.transform(matrix)
-
-	def moveCameraZ(self,x,y):
-
-		wf = Wireframe()
-
-		matrix = wf.testMat((0,0,val))
-
-		for wireframe in self.wireframes.values():
-			wireframe.transform(matrix)
-
-	def perspectiveMode(self):
-
-		#First translate the centre of screen to 0,0
-
-		wf = Wireframe()
-		matrix = wf.translationMatrix(-self.width/2,-self.height/2,0)
-
-		for wireframe in self.wireframes.values():
-			wireframe.transform(matrix)
-
-		#perform the perspectivecorrection
-
-		wf = Wireframe()
-		matrix = wf.translationMatrix(-self.width/2,-self.height/2,0)
-
-		for wireframe in self.wireframes.values():
-			matrix = wf.perspectiveCorrection(1.2)
-			wireframe.transform(matrix)
-
-		wf = Wireframe()
-		matrix = wf.translationMatrix(self.width/2,self.height/2,0)
-
-		for wireframe in self.wireframes.values():
-			wireframe.transform(matrix)
-
 
 	def rotate_about_Center(self, Axis, theta):
 
@@ -237,9 +187,6 @@ class ProjectionViewer:
 
 		for wireframe in self.wireframes.values():
 			wireframe.transform(matrix)
-			
-
-		
 		
 
 		#Translate back to centre of screen
@@ -250,11 +197,38 @@ class ProjectionViewer:
 		for wireframe in self.wireframes.values():
 			wireframe.transform(matrix)
 
+	def rotate_about_camera(self, Axis, theta):
 
+		wf = Wireframe()
 
+		matrix = wf.translationMatrix(-self.width/2, -self.height/2,0)
+
+		for wireframe in self.wireframes.values():
+			wireframe.transform(matrix)
+
+		#Do Rotation
+		wf = Wireframe()
+		if Axis == 'X':
+			matrix = wf.rotateXMatrix(theta)
+		elif Axis == 'Y':
+			matrix = wf.rotateYMatrix(theta)
+		elif Axis == 'Z':
+			matrix = wf.rotateZMatrix(theta)
+
+		for wireframe in self.wireframes.values():
+			wireframe.transform(matrix)
 		
 
-		#Do perspective if needed
+		#Translate back to original position
+
+		wf = Wireframe()
+		matrix = wf.translationMatrix(self.width/2,self.height/2,0)
+
+		for wireframe in self.wireframes.values():
+			wireframe.transform(matrix)
+
+		print(self.camera.pos)
+	
 
 	def scale_centre(self, vector):
 
@@ -280,22 +254,30 @@ class ProjectionViewer:
 		for wireframe in self.wireframes.values():
 			wireframe.transform(matrix)
 
+	def move_cam_forward(self, amount):
+		#Moving the camera forward will be a positive translation in the z axis for every other object.
+		self.camera.pos[2] += amount
 
+		self.translateAll([0,0,amount])
 
-	def add_perspective(self):
+		print(self.camera.pos[2])
+		print("moved forward")
 
-		for wireframe in self.wireframes.values():
-			for node in wireframe.nodes:
-				if node[2] != 0:
+	def move_cam_backward(self, amount):
+		self.camera.pos[2] -= amount
 
+		self.translateAll([0,0,-amount])
 
-					print("Point ----------")
-					print("x node", node[0])
-					print("y node", node[1])
-					print("z node", node[2])
+		print(self.camera.pos[2])
+		print("moved forward")
 
-					node[0] = node[0] + (10/node[2])
-					node[1] = node[1] + (10/node[2])
+	def move_cam_left(self, amount):
+		self.camera.pos[0] += amount
+		self.translateAll([amount,0,0])
+
+	def move_cam_right(self, amount):
+		self.camera.pos[0] -= amount
+		self.translateAll([-amount,0,0])
 
 					
 

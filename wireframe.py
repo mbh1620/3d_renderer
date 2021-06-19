@@ -102,15 +102,15 @@ class Wireframe:
 	def transform(self, matrix):
 		self.nodes = np.dot(self.nodes, matrix)
 
-	def transform_for_perspective(self, center):
+	def transform_for_perspective(self, center, fov, zoom):
 		self.perspective_nodes = self.nodes.copy()
 		for i in range(len(self.nodes)):
 			node = self.nodes[i]
 			p_node = self.perspective_nodes[i]
-			print(node[0], node[1], node[2])
+			# print(node[0], node[1], node[2])
 			if node[2] != 0:
-				p_node[0] = center[0] + (node[0]-center[0])*250/(200-(node[2]))
-				p_node[1] = center[1] + (node[1]-center[1])*250/(200-(node[2]))
+				p_node[0] = center[0] + (node[0]-center[0])*fov/(zoom-(node[2]))
+				p_node[1] = center[1] + (node[1]-center[1])*fov/(zoom-(node[2]))
 				p_node[2] = node[2] * 1
         
 
@@ -157,20 +157,6 @@ class Wireframe:
 						 [s,c,0,0],
 						 [0,0,1,0],
 						 [0,0,0,1]])
-
-	def perspectiveMatrix(self, x, y, z, distance):
-
-		x = x/z
-		y = y/z
-
-		return np.array([[x, 0, 0, 0], 
-						 [0, y, 0, 0],
-						 [0, 0, 1, 0],
-						 [0, 0, 0, 1]])
-
-
-
-
 
 	def movCamera(self, tilt, pan):
 
