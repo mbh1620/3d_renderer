@@ -2,7 +2,7 @@
 
 3d graphics renderer built from only using pygame and numpy in Python.
 
-http://matthewhaywood.co.uk/mini-projects/3D-renderer
+https://www.matthewhaywood.co.uk/mini-projects/3D-renderer
 
 This was done to help my understanding of rotation, scale and transformation matrices.
 
