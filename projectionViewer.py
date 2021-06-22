@@ -7,7 +7,7 @@ class ProjectionViewer:
 
 	''' Displays 3D Objects on a Pygame Screen '''
 
-	def __init__(self, width, height):
+	def __init__(self, width, height, center_point):
 		self.width = width
 		self.height = height
 		self.screen = pygame.display.set_mode((width, height))
@@ -15,8 +15,8 @@ class ProjectionViewer:
 		self.background = (10,10,50)
 
 		#Setup camera
-		self.camera = Camera([0,0,0])
-
+		self.camera = Camera([0,0,0],0,0)
+		self.center_point = center_point
 
 
 		self.wireframes = {}
@@ -128,12 +128,13 @@ class ProjectionViewer:
 
 			if self.displayNodes:
 				for node in wireframe.perspective_nodes:
-					pygame.draw.circle(self.screen, self.nodeColour, (int(node[0]), int(node[1])), self.nodeRadius, 0)
+					if node[2] > 0 and node[2] < 10000 and node[0] > 0 and node[0] < 1199:
+						pygame.draw.circle(self.screen, self.nodeColour, (int(node[0]), int(node[1])), self.nodeRadius, 0)
 
 			if self.displayEdges:
 				for n1, n2 in wireframe.edges:
-
-					pygame.draw.aaline(self.screen, self.edgeColour, wireframe.perspective_nodes[n1][:2], wireframe.perspective_nodes[n2][:2], 1)
+					if wireframe.perspective_nodes[n1][2] > 0 and wireframe.perspective_nodes[n2][2] > 0 and wireframe.perspective_nodes[n1][2] < 10000 and wireframe.perspective_nodes[n1][0] > 0 and wireframe.perspective_nodes[n1][0] < 1199 :
+						pygame.draw.aaline(self.screen, self.edgeColour, wireframe.perspective_nodes[n1][:2], wireframe.perspective_nodes[n2][:2], 1)
 
 
 
@@ -227,6 +228,15 @@ class ProjectionViewer:
 		for wireframe in self.wireframes.values():
 			wireframe.transform(matrix)
 
+
+		self.camera.hor_angle += theta
+
+		if self.camera.hor_angle >= 2*math.pi:
+			self.camera.hor_angle -= 2*math.pi
+		elif self.camera.hor_angle < -2*math.pi:
+			self.camera.hor_angle += 2*math.pi
+
+		self.camera.define_render_space()
 		print(self.camera.pos)
 	
 
@@ -256,28 +266,32 @@ class ProjectionViewer:
 
 	def move_cam_forward(self, amount):
 		#Moving the camera forward will be a positive translation in the z axis for every other object.
-		self.camera.pos[2] += amount
-
-		self.translateAll([0,0,amount])
-
-		print(self.camera.pos[2])
-		print("moved forward")
+		self.camera.set_position(self.center_point)
+		self.camera.define_render_space()
+		self.translateAll([0,0,-amount])
+		print("Camera position: ")
+		print(self.camera.pos)
 
 	def move_cam_backward(self, amount):
-		self.camera.pos[2] -= amount
-
-		self.translateAll([0,0,-amount])
-
-		print(self.camera.pos[2])
-		print("moved forward")
+		self.camera.set_position(self.center_point)
+		self.camera.define_render_space()
+		self.translateAll([0,0,amount])
+		print("Camera position: ")
+		print(self.camera.pos)
 
 	def move_cam_left(self, amount):
-		self.camera.pos[0] += amount
-		self.translateAll([amount,0,0])
+		self.camera.set_position(self.center_point)
+		self.camera.define_render_space()
+		self.translateAll([-amount,0,0])
+		print("Camera position: ")
+		print(self.camera.pos)
 
 	def move_cam_right(self, amount):
-		self.camera.pos[0] -= amount
-		self.translateAll([-amount,0,0])
+		self.camera.set_position(self.center_point)
+		self.camera.define_render_space()
+		self.translateAll([amount,0,0])
+		print("Camera position: ")
+		print(self.camera.pos)
 
 					
 

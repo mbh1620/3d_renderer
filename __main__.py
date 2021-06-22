@@ -35,6 +35,13 @@ from mesh_floor import *
 
 cube = wireframe.Wireframe()
 
+axes = wireframe.Wireframe()
+
+a = np.array([[0,0,0],[1000,0,0], [0,1000,0], [0,0,1000]])
+
+axes.addNodes(a)
+axes.addEdges([(0,1), (0,2), (0,3)])
+
 cube_nodes = grid_generation(10000,10000,False)
 
 print(len(cube_nodes))
@@ -62,11 +69,12 @@ for i in range(0,10):
 
 
 
-pv = ProjectionViewer(1200, 1000)
+pv = ProjectionViewer(1200, 1000, axes)
 # pv.addWireframe('object', Object)
 
 	
 pv.addWireframe('floormesh', cube)
+pv.addWireframe('axes', axes)
 
 # pv.addWireframe('cube', cube)
 # pv.addWireframe('cube2', cube2)
